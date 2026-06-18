@@ -11,7 +11,7 @@
     '.': { solid: false }, ',': { solid: false, enc: true }, ':': { solid: false },
     'F': { solid: false }, '=': { solid: false }, 'M': { solid: false },
     'T': { solid: true }, '#': { solid: true }, 'W': { solid: true, water: true },
-    'H': { solid: true }, 'R': { solid: true }, 'Y': { solid: true }, 'D': { solid: false }, 'S': { solid: true },
+    'H': { solid: true }, 'R': { solid: true }, 'Y': { solid: true }, 'G': { solid: true }, 'D': { solid: false }, 'S': { solid: true },
     'b': { solid: true }, 'C': { solid: true }, 'P': { solid: true }, '~': { solid: false, water: true },
     'B': { solid: true }, 'L': { solid: false, ledge: true }
   };
@@ -87,6 +87,12 @@
         ctx.fillStyle = '#3868c8'; ctx.fillRect(px, py, TILE, TILE);
         ctx.fillStyle = '#2848a0'; ctx.fillRect(px, py + 6, TILE, 1); ctx.fillRect(px, py + 12, TILE, 1);
         ctx.fillStyle = '#70a0e8'; ctx.fillRect(px, py, TILE, 2);
+        break;
+      case 'G':
+        ctx.fillStyle = '#808890'; ctx.fillRect(px, py, TILE, TILE);
+        ctx.fillStyle = '#606870'; ctx.fillRect(px, py + 5, TILE, 1); ctx.fillRect(px, py + 11, TILE, 1);
+        ctx.fillStyle = '#a0a8b0'; ctx.fillRect(px, py, TILE, 2);
+        ctx.fillStyle = '#505860'; ctx.fillRect(px + 4, py + 7, 2, 2); ctx.fillRect(px + 10, py + 2, 2, 2);
         break;
       case 'S':
         fillTexture(ctx, px, py, '#6cbf4a', [], '');
@@ -252,8 +258,8 @@
       ],
       warps: [],
       exits: [
-        { x: 9, y: 0, to: 'city', tx: 8, ty: 12, dir: 'up' },
-        { x: 10, y: 0, to: 'city', tx: 9, ty: 12, dir: 'up' },
+        { x: 9, y: 0, to: 'city', tx: 8, ty: 14, dir: 'up' },
+        { x: 10, y: 0, to: 'city', tx: 9, ty: 14, dir: 'up' },
         { x: 9, y: 17, to: 'town', tx: 9, ty: 1, dir: 'down' },
         { x: 10, y: 17, to: 'town', tx: 10, ty: 1, dir: 'down' }
       ],
@@ -294,32 +300,82 @@
       grid: [
         'TTTTTTTTTTTTTTTTT',
         'T...............T',
-        'T..RRRR...YYYY..T',
-        'T..RRRR...YYYY..T',
-        'T..BDHB...BDHB..T',
+        'T.RRRR.....YYYY.T',
+        'T.RRRR.....YYYY.T',
+        'T.BDHB.....BDHB.T',
         'T...............T',
         'T...............T',
-        'T..RRRR.........T',
-        'T..RRRR.........T',
-        'T..BDHB.........T',
-        'T.......F.......T',
-        'T..S...F.F......T',
+        'T.....GGGGG.....T',
+        'T.....GGGGG.....T',
+        'T.....GGGGG.....T',
+        'T.....BHDHB.....T',
         'T...............T',
+        'T.....F...F.....T',
+        'T...............T',
+        'T..S............T',
         'TTTTTTTT::TTTTTTT'
       ],
       warps: [
-        { x: 4, y: 4, to: 'center', tx: 4, ty: 5, dir: 'up' },
-        { x: 11, y: 4, to: 'mart', tx: 4, ty: 5, dir: 'up' },
-        { x: 4, y: 9, to: 'cityhouse', tx: 3, ty: 5, dir: 'up' }
+        { x: 3, y: 4, to: 'center', tx: 4, ty: 5, dir: 'up' },
+        { x: 12, y: 4, to: 'mart', tx: 4, ty: 5, dir: 'up' },
+        { x: 8, y: 10, to: 'gym', tx: 5, ty: 9, dir: 'up' }
       ],
       exits: [
-        { x: 8, y: 13, to: 'route1', tx: 9, ty: 1, dir: 'down' },
-        { x: 9, y: 13, to: 'route1', tx: 10, ty: 1, dir: 'down' }
+        { x: 8, y: 15, to: 'route1', tx: 9, ty: 1, dir: 'down' },
+        { x: 9, y: 15, to: 'route1', tx: 10, ty: 1, dir: 'down' }
       ],
       npcs: [
-        { x: 3, y: 11, sprite: 'sign', text: ['ニジイロシティ', '"にじが かかる ふれあいの まち"'] },
-        { x: 12, y: 7, sprite: 'npc', dir: 'down', name: 'まちのひと', text: ['あかい やねは モンスターセンター。', 'モンスターを ただで かいふくできるよ！'] },
-        { x: 13, y: 11, sprite: 'npc', dir: 'left', name: 'おとこのこ', text: ['あおい やねの ショップで', 'ボールや くすりが かえるんだ。'] }
+        { x: 3, y: 14, sprite: 'sign', text: ['ニジイロシティ', '"にじが かかる ふれあいの まち"'] },
+        { x: 2, y: 6, sprite: 'npc', dir: 'down', name: 'まちのひと', text: ['あかい やねは モンスターセンター。', 'モンスターを ただで かいふくできるよ！', 'あおい やねは ショップだ。'] },
+        { x: 6, y: 11, sprite: 'npc', dir: 'up', name: 'ジムあんない', text: ['ニジイロジムへ ようこそ！', 'リーダーは いわタイプの つかいて。', 'かつと ストーンバッジが もらえるぞ！'] }
+      ],
+      encounters: null
+    },
+
+    gym: {
+      name: 'ニジイロジム', outdoor: false,
+      grid: [
+        'HHHHHHHHHHH',
+        'H=========H',
+        'H=========H',
+        'H=========H',
+        'H==b===b==H',
+        'H=========H',
+        'H=========H',
+        'H==b===b==H',
+        'H=========H',
+        'H=========H',
+        'H====MM===H',
+        'HHHHHHHHHHH'
+      ],
+      warps: [], exits: [{ x: 5, y: 10, to: 'city', tx: 8, ty: 11, dir: 'down' }, { x: 6, y: 10, to: 'city', tx: 8, ty: 11, dir: 'down' }],
+      npcs: [
+        {
+          x: 3, y: 8, sprite: 'youngster', dir: 'right', trainer: true, sight: 3, prize: 80, flag: 't_gym_a',
+          name: 'ジムトレーナー イワオ',
+          intro: ['ジムトレーナー イワオ', 'リーダーの ところへは いかせないぞ！'],
+          defeat: ['うっ、つよい…！'],
+          party: [{ species: 'cobblite', level: 9 }],
+          text: ['うっ、つよい…！']
+        },
+        {
+          x: 7, y: 5, sprite: 'youngster', dir: 'left', trainer: true, sight: 3, prize: 90, flag: 't_gym_b',
+          name: 'ジムトレーナー ガンセキ',
+          intro: ['ジムトレーナー ガンセキ', 'いわの かたさを みせてやる！'],
+          defeat: ['まだまだ しゅぎょうが たりないか…'],
+          party: [{ species: 'cobblite', level: 10 }],
+          text: ['まだまだ しゅぎょうが たりないか…']
+        },
+        {
+          x: 5, y: 2, sprite: 'leader', dir: 'down', trainer: true, noSight: true, prize: 1500, flag: 't_gym_leader',
+          name: 'ジムリーダー イシオ',
+          badge: 'ストーンバッジ', reward: 'superpotion',
+          intro: ['ジムリーダー イシオ', 'よく ここまで きた！', 'わたしの いわタイプ、うけてみよ！'],
+          defeat: ['みごとだ！ きみの じつりょくを みとめよう。'],
+          party: [{ species: 'cobblite', level: 11 }, { species: 'boulderon', level: 13 }],
+          text: ['また いつでも しょうぶ しにくるが よい。']
+        },
+        { x: 8, y: 9, sprite: 'sign', text: ['ニジイロジム', 'リーダー イシオ', '"いわのように ゆるがぬ こころ"'] }
       ],
       encounters: null
     },

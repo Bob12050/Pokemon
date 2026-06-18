@@ -196,7 +196,7 @@
     const map = this.map;
     if (!map.npcs) return false;
     for (const n of map.npcs) {
-      if (!n.trainer || G.flags[n.flag]) continue;
+      if (!n.trainer || n.noSight || G.flags[n.flag]) continue;
       const [dx, dy] = DIRV[n.dir] || [0, 0];
       if (dx === 0 && dy === 0) continue;
       for (let d = 1; d <= (n.sight || 4); d++) {
@@ -225,7 +225,15 @@
           prize: npc.prize, defeatText: npc.defeat,
           onEnd: (res) => {
             self.transition = 6;
-            if (res === 'win') { G.flags[npc.flag] = true; }
+            if (res === 'win') {
+              G.flags[npc.flag] = true;
+              if (npc.badge && !G.hasBadge(npc.badge)) {
+                G.addBadge(npc.badge);
+                const lines = [G.player.name + 'は ' + npc.badge + 'を てにいれた！'];
+                if (npc.reward && G.D.ITEMS[npc.reward]) { G.addItem(npc.reward, 1); lines.push('さらに ' + G.D.ITEMS[npc.reward].name + 'を もらった！'); }
+                setTimeout(() => self.showMessage(lines), 60);
+              }
+            }
           }
         });
       }, 80);

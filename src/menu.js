@@ -13,7 +13,7 @@
 
   // ---------- スタートメニュー ----------
   function MenuState() {
-    this.items = ['モンスター', 'バッグ', 'レポート', 'ずかん', 'とじる'];
+    this.items = ['モンスター', 'バッグ', 'カード', 'レポート', 'ずかん', 'とじる'];
     this.index = 0;
     this.drawUnder = true;
     this.note = null; this.noteT = 0;
@@ -28,12 +28,13 @@
       switch (this.index) {
         case 0: G.pushState(new PartyState()); break;
         case 1: G.pushState(new BagState()); break;
-        case 2:
+        case 2: G.pushState(new CardState()); break;
+        case 3:
           if (G.save()) { this.note = 'ゲームを セーブしました！'; this.noteT = 90; }
           else { this.note = 'セーブに しっぱいしました'; this.noteT = 90; }
           break;
-        case 3: G.pushState(new DexState()); break;
-        case 4: G.popState(); break;
+        case 4: G.pushState(new DexState()); break;
+        case 5: G.popState(); break;
       }
     }
   };
@@ -234,6 +235,42 @@
     const owned = ids.filter(i => G.dex[i] === 'owned').length;
     const seen = ids.filter(i => G.dex[i]).length;
     G.text('みた:' + seen + ' つかまえた:' + owned, 132, G.H - 12, '#384048', 7);
+  };
+
+  // ---------- トレーナーカード ----------
+  const ALL_BADGES = ['ストーンバッジ'];
+  function CardState() {}
+  CardState.prototype.update = function () {
+    const I = G.Input;
+    if (I.pressed('b') || I.pressed('a')) { G.popState(); return; }
+  };
+  CardState.prototype.render = function () {
+    const ctx = G.ctx;
+    const grad = ctx.createLinearGradient(0, 0, G.W, G.H);
+    grad.addColorStop(0, '#2860b0'); grad.addColorStop(1, '#50308a');
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, G.W, G.H);
+    G.window9(8, 8, G.W - 16, G.H - 16, { fill: '#f4f8ff', border: '#203868', inner: '#a8c8e8' });
+    G.text('トレーナーカード', 18, 16, '#384048', 8);
+    G.text('なまえ  ' + (G.player ? G.player.name : ''), 18, 34, '#384048', 8);
+    G.text('おかね  ' + G.money + '円', 18, 48, '#384048', 8);
+    const ids = Object.keys(D.SPECIES);
+    const owned = ids.filter(i => G.dex[i] === 'owned').length;
+    G.text('つかまえた モンスター  ' + owned + 'たい', 18, 62, '#384048', 8);
+    // バッジ
+    G.text('バッジ', 18, 80, '#384048', 8);
+    for (let i = 0; i < ALL_BADGES.length; i++) {
+      const bx = 60 + i * 26, by = 78;
+      const got = G.hasBadge(ALL_BADGES[i]);
+      // バッジの石アイコン
+      ctx.fillStyle = got ? '#a0a8b0' : '#5a6068';
+      ctx.beginPath(); ctx.arc(bx + 9, by + 7, 8, 0, 7); ctx.fill();
+      ctx.fillStyle = got ? '#d0d8e0' : '#40464c'; ctx.beginPath(); ctx.arc(bx + 6, by + 4, 3, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#203868'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(bx + 9, by + 7, 8, 0, 7); ctx.stroke();
+    }
+    const got = G.badges ? G.badges.length : 0;
+    G.text('かくとく バッジ  ' + got + ' / ' + ALL_BADGES.length, 18, 104, '#384048', 8);
+    G.text(got >= ALL_BADGES.length ? 'すべての バッジを あつめた！' : 'ジムリーダーに かって バッジを あつめよう！', 18, 122, '#386048', 7);
+    G.text('Ｂ:もどる', 18, G.H - 24, '#384048', 7);
   };
 
   // ---------- ショップ ----------

@@ -204,7 +204,7 @@
     try {
       const data = {
         player: G.player, party: G.party, bag: G.bag, money: G.money,
-        flags: G.flags, pos: G.pos, dex: G.dex, time: Date.now()
+        flags: G.flags, pos: G.pos, dex: G.dex, badges: G.badges, box: G.box, time: Date.now()
       };
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
       return true;
@@ -228,12 +228,13 @@
     createMonster, calcStats, gainExp, evolve, recalc, expYield, pct, isFainted, fullHeal, movesForLevel,
     save, load, hasSave,
     // ランタイムデータ（newGame で初期化）
-    player: null, party: [], bag: {}, money: 0, flags: {}, pos: null, dex: {}
+    player: null, party: [], bag: {}, money: 0, flags: {}, pos: null, dex: {}, badges: [], box: []
   };
 
   G.applySave = function (d) {
     G.player = d.player; G.party = d.party; G.bag = d.bag; G.money = d.money;
     G.flags = d.flags || {}; G.pos = d.pos; G.dex = d.dex || {};
+    G.badges = d.badges || []; G.box = d.box || [];
   };
 
   G.newGame = function (name, starterId) {
@@ -243,8 +244,13 @@
     G.money = 3000;
     G.flags = { gotStarter: true };
     G.dex = {}; G.dex[starterId] = 'owned';
+    G.badges = [];
+    G.box = [];
     G.pos = { map: 'town', x: 8, y: 9, dir: 'down' };
   };
+
+  G.addBadge = function (name) { G.badges = G.badges || []; if (G.badges.indexOf(name) < 0) G.badges.push(name); };
+  G.hasBadge = function (name) { return (G.badges || []).indexOf(name) >= 0; };
 
   G.dexSee = function (id) { if (!G.dex[id]) G.dex[id] = 'seen'; };
   G.dexOwn = function (id) { G.dex[id] = 'owned'; };

@@ -52,6 +52,16 @@
     const I = G.Input;
     if (this.transition > 0) { this.transition--; return; }
 
+    // トレーナーの「！」演出
+    if (this.alert) {
+      this.alert.t--;
+      if (this.alert.t <= 0) {
+        const npc = this.alert.npc; this.alert = null;
+        this.startTrainerBattle(npc);
+      }
+      return;
+    }
+
     // メッセージ表示中
     if (this.msg) {
       const full = this.msg.lines[this.msg.idx];
@@ -72,6 +82,9 @@
     if (I.pressed('start')) { G.openMenu(); return; }
 
     if (this.moving) { this.updateMove(); return; }
+
+    // トレーナーの視線チェック
+    if (this.checkTrainers()) return;
 
     // 調べる
     if (I.pressed('a')) { if (this.interact()) return; }
@@ -163,16 +176,67 @@
     if (npc) {
       const self = this;
       if (npc.dir !== undefined && npc.sprite !== 'sign') npc.dir = opposite(this.dir);
+      // まだ たおしていない トレーナー
+      if (npc.trainer && !G.flags[npc.flag]) { this.startTrainerBattle(npc); return true; }
       this.showMessage(npc.text, () => {
         if (npc.heal) {
           for (const m of G.party) G.fullHeal(m);
           self.showMessage('モンスターたちは げんきに なった！');
+        } else if (npc.shop) {
+          G.openShop();
         }
       });
       return true;
     }
     return false;
   };
+
+  // トレーナーの視線：facing方向 sight マスに プレイヤーが いるか
+  OverworldState.prototype.checkTrainers = function () {
+    const map = this.map;
+    if (!map.npcs) return false;
+    for (const n of map.npcs) {
+      if (!n.trainer || G.flags[n.flag]) continue;
+      const [dx, dy] = DIRV[n.dir] || [0, 0];
+      if (dx === 0 && dy === 0) continue;
+      for (let d = 1; d <= (n.sight || 4); d++) {
+        const cx = n.x + dx * d, cy = n.y + dy * d;
+        if (M.solidAt(map, cx, cy)) break;
+        const blocker = M.npcAt(map, cx, cy);
+        if (blocker && !(cx === this.tx && cy === this.ty)) break;
+        if (cx === this.tx && cy === this.ty) {
+          this.alert = { npc: n, t: 28 };
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  OverworldState.prototype.startTrainerBattle = function (npc) {
+    const self = this;
+    npc.dir = directionFromTo(npc, this) || npc.dir;
+    const party = npc.party.map(p => G.createMonster(p.species, p.level));
+    this.showMessage(npc.intro, () => {
+      self.transition = 4;
+      setTimeout(() => {
+        G.startBattle(party[0], {
+          isWild: false, trainerName: npc.name, foeParty: party,
+          prize: npc.prize, defeatText: npc.defeat,
+          onEnd: (res) => {
+            self.transition = 6;
+            if (res === 'win') { G.flags[npc.flag] = true; }
+          }
+        });
+      }, 80);
+    });
+  };
+
+  function directionFromTo(a, b) {
+    if (a.x === b.tx) return a.y < b.ty ? 'down' : 'up';
+    if (a.y === b.ty) return a.x < b.tx ? 'right' : 'left';
+    return null;
+  }
 
   function opposite(d) { return { up: 'down', down: 'up', left: 'right', right: 'left' }[d]; }
 
@@ -211,6 +275,15 @@
     const ppx = this.tx * TILE + this.ox - camX;
     const ppy = this.ty * TILE + this.oy - camY - 6;
     S.drawPlayer(ctx, this.dir, this.anim, ppx, ppy, TILE);
+
+    // トレーナーの「！」吹き出し
+    if (this.alert) {
+      const n = this.alert.npc;
+      const bx = n.x * TILE - camX + 4, by = n.y * TILE - camY - 16;
+      ctx.fillStyle = '#fff'; ctx.fillRect(bx, by, 8, 10);
+      ctx.fillStyle = '#202028'; ctx.fillRect(bx + 2, by - 2, 4, 4);
+      ctx.fillStyle = '#d04030'; ctx.fillRect(bx + 3, by + 1, 2, 4); ctx.fillRect(bx + 3, by + 6, 2, 2);
+    }
 
     // マップ名（入場時）
     if (this.transition > 0 && map.name) {

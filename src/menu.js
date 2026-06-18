@@ -236,6 +236,49 @@
     G.text('みた:' + seen + ' つかまえた:' + owned, 132, G.H - 12, '#384048', 7);
   };
 
+  // ---------- ショップ ----------
+  const SHOP_STOCK = ['monball', 'superball', 'potion', 'superpotion', 'antidote', 'awakening', 'revive'];
+  function ShopState() { this.index = 0; this.note = null; this.noteT = 0; }
+  ShopState.prototype.update = function () {
+    const I = G.Input;
+    if (this.noteT > 0) { this.noteT--; if (this.noteT === 0) this.note = null; }
+    if (I.pressed('b')) { G.popState(); return; }
+    if (I.pressed('down')) this.index = Math.min(SHOP_STOCK.length - 1, this.index + 1);
+    if (I.pressed('up')) this.index = Math.max(0, this.index - 1);
+    if (I.pressed('a')) {
+      const id = SHOP_STOCK[this.index], item = D.ITEMS[id];
+      if (G.money >= item.price) {
+        G.money -= item.price; G.addItem(id, 1);
+        this.note = item.name + 'を かいました！'; this.noteT = 80;
+      } else {
+        this.note = 'おかねが たりません！'; this.noteT = 80;
+      }
+    }
+  };
+  ShopState.prototype.render = function () {
+    const ctx = G.ctx;
+    G.clear('#3868a8');
+    ctx.fillStyle = '#2858a0'; for (let i = 0; i < 12; i++) ctx.fillRect(0, i * 14, G.W, 1);
+    // 所持金
+    G.window9(G.W - 96, 4, 92, 18, { fill: '#f8f8f8', border: '#284878', inner: '#a8c8e8' });
+    G.text('しょじきん', G.W - 90, 8, '#384048', 8);
+    G.text(G.money + '円', G.W - 90, 14, '#384048', 8);
+    // 一覧
+    G.window9(4, 26, G.W - 8, G.H - 52, { fill: '#f8f8f8', border: '#284878', inner: '#cfe' });
+    G.text('フレンドリィショップ', 12, 30, '#384048', 8);
+    for (let i = 0; i < SHOP_STOCK.length; i++) {
+      const item = D.ITEMS[SHOP_STOCK[i]], yy = 42 + i * 12;
+      G.text(item.name, 16, yy, '#384048', 8);
+      G.text(item.price + '円', G.W - 56, yy, '#384048', 8);
+      if (i === this.index) G.cursor(8, yy, '#d04030');
+    }
+    // 説明/通知
+    G.window9(4, G.H - 24, G.W - 8, 20, { fill: '#f8f8f8', border: '#284878', inner: '#88a8d8' });
+    if (this.note) G.text(this.note, 12, G.H - 18, '#384048', 8);
+    else G.text((D.ITEMS[SHOP_STOCK[this.index]].desc || '').slice(0, 30), 12, G.H - 18, '#384048', 8);
+  };
+
   G.openMenu = function () { G.pushState(new MenuState()); };
+  G.openShop = function () { G.pushState(new ShopState()); };
   G.MenuState = MenuState;
 })(window);

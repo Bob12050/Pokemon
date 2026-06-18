@@ -11,7 +11,7 @@
     '.': { solid: false }, ',': { solid: false, enc: true }, ':': { solid: false },
     'F': { solid: false }, '=': { solid: false }, 'M': { solid: false },
     'T': { solid: true }, '#': { solid: true }, 'W': { solid: true, water: true },
-    'H': { solid: true }, 'R': { solid: true }, 'D': { solid: false }, 'S': { solid: true },
+    'H': { solid: true }, 'R': { solid: true }, 'Y': { solid: true }, 'D': { solid: false }, 'S': { solid: true },
     'b': { solid: true }, 'C': { solid: true }, 'P': { solid: true }, '~': { solid: false, water: true },
     'B': { solid: true }, 'L': { solid: false, ledge: true }
   };
@@ -82,6 +82,11 @@
         ctx.fillStyle = '#c84038'; ctx.fillRect(px, py, TILE, TILE);
         ctx.fillStyle = '#a82820'; ctx.fillRect(px, py + 6, TILE, 1); ctx.fillRect(px, py + 12, TILE, 1);
         ctx.fillStyle = '#e87060'; ctx.fillRect(px, py, TILE, 2);
+        break;
+      case 'Y':
+        ctx.fillStyle = '#3868c8'; ctx.fillRect(px, py, TILE, TILE);
+        ctx.fillStyle = '#2848a0'; ctx.fillRect(px, py + 6, TILE, 1); ctx.fillRect(px, py + 12, TILE, 1);
+        ctx.fillStyle = '#70a0e8'; ctx.fillRect(px, py, TILE, 2);
         break;
       case 'S':
         fillTexture(ctx, px, py, '#6cbf4a', [], '');
@@ -226,7 +231,7 @@
     route1: {
       name: '１ばんどうろ', outdoor: true,
       grid: [
-        'TTTTTTTTTTTTTTTTTTT',
+        'TTTTTTTTT..TTTTTTTT',
         'T,,,,,,,,,,,,,,,,,T',
         'T,,,,,,,,,,,,,,,,,T',
         'T.................T',
@@ -247,12 +252,30 @@
       ],
       warps: [],
       exits: [
+        { x: 9, y: 0, to: 'city', tx: 8, ty: 12, dir: 'up' },
+        { x: 10, y: 0, to: 'city', tx: 9, ty: 12, dir: 'up' },
         { x: 9, y: 17, to: 'town', tx: 9, ty: 1, dir: 'down' },
         { x: 10, y: 17, to: 'town', tx: 10, ty: 1, dir: 'down' }
       ],
       npcs: [
-        { x: 2, y: 16, sprite: 'sign', text: ['１ばんどうろ', 'この さき ニジイロシティ（こうじちゅう）'] },
-        { x: 14, y: 9, sprite: 'npc', dir: 'left', name: 'たんけんか', text: ['くさむらで モンスターを よわらせてから', 'ボールを なげると つかまえやすいぞ！', 'ねむらせると なお よし！'] }
+        { x: 2, y: 16, sprite: 'sign', text: ['１ばんどうろ', 'この さき ニジイロシティ'] },
+        { x: 14, y: 9, sprite: 'npc', dir: 'left', name: 'たんけんか', text: ['くさむらで モンスターを よわらせてから', 'ボールを なげると つかまえやすいぞ！', 'ねむらせると なお よし！'] },
+        {
+          x: 12, y: 10, sprite: 'youngster', dir: 'left', trainer: true, sight: 4, prize: 80, flag: 't_route1_a',
+          name: 'たんぱんこぞう ケンタ',
+          intro: ['たんぱんこぞう ケンタ', 'やあ！ ぼくと しょうぶしよう！'],
+          defeat: ['つよいなあ！ もっと きたえてくる！'],
+          party: [{ species: 'nibblet', level: 6 }, { species: 'flittle', level: 7 }],
+          text: ['つよいなあ！ もっと きたえてくる！']
+        },
+        {
+          x: 4, y: 3, sprite: 'lass', dir: 'right', trainer: true, sight: 4, prize: 110, flag: 't_route1_b',
+          name: 'ミニスカート アヤ',
+          intro: ['ミニスカート アヤ', 'かわいい モンスター みつけたの！ しょうぶ よ！'],
+          defeat: ['まけちゃった… でも たのしかった！'],
+          party: [{ species: 'buzzle', level: 6 }, { species: 'cobblite', level: 8 }],
+          text: ['まけちゃった… でも たのしかった！']
+        }
       ],
       encounters: { rate: 18, table: [
         { species: 'nibblet', min: 2, max: 5, weight: 30 },
@@ -264,6 +287,98 @@
         { species: 'wispurr', min: 4, max: 6, weight: 1 },
         { species: 'dratlet', min: 4, max: 6, weight: 1 }
       ] }
+    },
+
+    city: {
+      name: 'ニジイロシティ', outdoor: true,
+      grid: [
+        'TTTTTTTTTTTTTTTTT',
+        'T...............T',
+        'T..RRRR...YYYY..T',
+        'T..RRRR...YYYY..T',
+        'T..BDHB...BDHB..T',
+        'T...............T',
+        'T...............T',
+        'T..RRRR.........T',
+        'T..RRRR.........T',
+        'T..BDHB.........T',
+        'T.......F.......T',
+        'T..S...F.F......T',
+        'T...............T',
+        'TTTTTTTT::TTTTTTT'
+      ],
+      warps: [
+        { x: 4, y: 4, to: 'center', tx: 4, ty: 5, dir: 'up' },
+        { x: 11, y: 4, to: 'mart', tx: 4, ty: 5, dir: 'up' },
+        { x: 4, y: 9, to: 'cityhouse', tx: 3, ty: 5, dir: 'up' }
+      ],
+      exits: [
+        { x: 8, y: 13, to: 'route1', tx: 9, ty: 1, dir: 'down' },
+        { x: 9, y: 13, to: 'route1', tx: 10, ty: 1, dir: 'down' }
+      ],
+      npcs: [
+        { x: 3, y: 11, sprite: 'sign', text: ['ニジイロシティ', '"にじが かかる ふれあいの まち"'] },
+        { x: 12, y: 7, sprite: 'npc', dir: 'down', name: 'まちのひと', text: ['あかい やねは モンスターセンター。', 'モンスターを ただで かいふくできるよ！'] },
+        { x: 13, y: 11, sprite: 'npc', dir: 'left', name: 'おとこのこ', text: ['あおい やねの ショップで', 'ボールや くすりが かえるんだ。'] }
+      ],
+      encounters: null
+    },
+
+    center: {
+      name: 'モンスターセンター', outdoor: false,
+      grid: [
+        'HHHHHHHHH',
+        'H=CCCCC=H',
+        'H=======H',
+        'H=======H',
+        'H=b===b=H',
+        'H=======H',
+        'H===MM==H',
+        'HHHHHHHHH'
+      ],
+      warps: [], exits: [{ x: 4, y: 6, to: 'city', tx: 4, ty: 5, dir: 'down' }, { x: 5, y: 6, to: 'city', tx: 4, ty: 5, dir: 'down' }],
+      npcs: [
+        { x: 4, y: 2, sprite: 'nurse', dir: 'down', name: 'ジョーイ', heal: true, text: ['モンスターセンターへ ようこそ！', 'モンスターを げんきな じょうたいに しますね。'] }
+      ],
+      encounters: null
+    },
+
+    mart: {
+      name: 'フレンドリィショップ', outdoor: false,
+      grid: [
+        'HHHHHHHHH',
+        'H=CCCC==H',
+        'H=======H',
+        'H=======H',
+        'H=b=b=b=H',
+        'H=======H',
+        'H===MM==H',
+        'HHHHHHHHH'
+      ],
+      warps: [], exits: [{ x: 4, y: 6, to: 'city', tx: 11, ty: 5, dir: 'down' }, { x: 5, y: 6, to: 'city', tx: 11, ty: 5, dir: 'down' }],
+      npcs: [
+        { x: 4, y: 2, sprite: 'clerk', dir: 'down', name: 'てんいん', shop: true, text: ['いらっしゃいませ！', 'なにを おもとめですか？'] }
+      ],
+      encounters: null
+    },
+
+    cityhouse: {
+      name: 'ニジイロシティの いえ', outdoor: false,
+      grid: [
+        'HHHHHHHH',
+        'H======H',
+        'H=b==b=H',
+        'H======H',
+        'H==CC==H',
+        'H======H',
+        'H==MM==H',
+        'HHHHHHHH'
+      ],
+      warps: [], exits: [{ x: 3, y: 6, to: 'city', tx: 4, ty: 10, dir: 'down' }, { x: 4, y: 6, to: 'city', tx: 4, ty: 10, dir: 'down' }],
+      npcs: [
+        { x: 2, y: 2, sprite: 'npc', dir: 'down', name: 'はかせのたまご', text: ['しんかは レベルアップで おきることが おおいよ。', 'タイプの あいしょうを おぼえると しょうぶが ゆうりに なる！'] }
+      ],
+      encounters: null
     }
   };
 

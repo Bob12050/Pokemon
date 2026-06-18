@@ -33,7 +33,9 @@
   // ---------- バトル状態 ----------
   function BattleState(foeMon, opts) {
     this.opts = opts || {};
-    this.foe = new Battler(foeMon, true);
+    this.foeParty = (this.opts.foeParty && this.opts.foeParty.length) ? this.opts.foeParty : [foeMon];
+    this.foeIndex = 0;
+    this.foe = new Battler(this.foeParty[0], true);
     this.me = new Battler(G.party.find(m => m.hp > 0) || G.party[0], false);
     this.activeIndex = G.party.indexOf(this.me.mon);
     this.phase = 'intro';
@@ -45,19 +47,23 @@
     this.full = '';
     this.tick = 0;
     this.flash = 0;
+    this.flashFull = 0;
+    this.slideT = 26;          // 登場スライドイン
+    this.foeFaintT = 0; this.meFaintT = 0;
     this.shakeFoe = 0; this.shakeMe = 0;
     this.foeVisible = true; this.meVisible = true;
     this.ballAnim = null;
     this.runCount = 0;
     this.ended = false;
     this.bagFilter = null;
-    G.dexSee(foeMon.species);
+    G.dexSee(this.foe.mon.species);
   }
 
   BattleState.prototype.enter = function () {
-    const intro = this.opts.isWild
-      ? ['あ！ やせいの ' + this.foe.name() + 'が とびだしてきた！']
-      : [(this.opts.trainerName || 'トレーナー') + 'が しょうぶを しかけてきた！'];
+    let intro;
+    if (this.opts.isWild) intro = ['あ！ やせいの ' + this.foe.name() + 'が とびだしてきた！'];
+    else intro = [(this.opts.trainerName || 'トレーナー') + 'が しょうぶを しかけてきた！',
+      (this.opts.trainerName || 'トレーナー') + 'は ' + this.foe.name() + 'を くりだした！'];
     intro.push('ゆけ！ ' + this.me.name() + '！');
     this.say(intro, () => { this.phase = 'menu'; });
   };
@@ -79,8 +85,12 @@
   BattleState.prototype.update = function (dt) {
     this.tick++;
     if (this.flash > 0) this.flash--;
+    if (this.flashFull > 0) this.flashFull--;
+    if (this.slideT > 0) this.slideT--;
     if (this.shakeFoe > 0) this.shakeFoe--;
     if (this.shakeMe > 0) this.shakeMe--;
+    if (this.foeFaintT > 0) { this.foeFaintT--; if (this.foeFaintT === 0) this.foeVisible = false; }
+    if (this.meFaintT > 0) { this.meFaintT--; if (this.meFaintT === 0) this.meVisible = false; }
     // HPバー追従
     for (const b of [this.foe, this.me]) {
       if (b.dispHP < b.mon.hp) b.dispHP = Math.min(b.mon.hp, b.dispHP + Math.max(1, (b.mon.stats.hp) / 60));
@@ -344,6 +354,8 @@
     if (eff === 0) { this.say(defender.name() + 'には こうかが ないようだ…', cb); return; }
     defender.mon.hp = Math.max(0, defender.mon.hp - dmg);
     this.flash = 6; if (defender.isFoe) this.shakeFoe = 10; else this.shakeMe = 10;
+    this.lastHit = defender.isFoe ? 'foe' : 'me';
+    if (eff > 1) this.flashFull = 7;
 
     const after = () => {
       const extras = [];
@@ -438,15 +450,42 @@
   };
 
   BattleState.prototype.onFoeFaint = function () {
-    this.foeVisible = false;
-    const lines = [this.foe.name() + 'を たおした！'];
+    this.foeFaintT = 14;
+    const lines = [(this.opts.isWild ? 'やせいの ' : '') + this.foe.name() + 'を たおした！'];
     // 経験値
     const exp = G.expYield(this.foe.mon);
     const ev = G.gainExp(this.me.mon, exp);
     lines.push(this.me.name() + 'は ' + exp + ' けいけんちを もらった！');
-    this.say(lines, () => this.processGrowth(ev, () => {
-      this.result = 'win'; this.phase = 'end';
-    }));
+    this.say(lines, () => this.processGrowth(ev, () => this.afterFoeDown()));
+  };
+
+  BattleState.prototype.afterFoeDown = function () {
+    // トレーナー戦：次のモンスター
+    if (!this.opts.isWild && this.foeIndex < this.foeParty.length - 1) {
+      const tn = this.opts.trainerName || 'トレーナー';
+      const next = this.foeParty[this.foeIndex + 1];
+      this.say([tn + 'は ' + next.name + 'を くりだした！'], () => {
+        this.foeIndex++;
+        this.foe = new Battler(next, true);
+        G.dexSee(next.species);
+        this.foeVisible = true; this.foeFaintT = 0; this.slideT = 18;
+        this.toMenuOrEnd();
+      });
+      return;
+    }
+    // 勝利
+    if (!this.opts.isWild) {
+      const tn = this.opts.trainerName || 'トレーナー';
+      const lines = [tn + 'との しょうぶに かった！'];
+      if (this.opts.prize) {
+        G.money += this.opts.prize;
+        lines.push(G.player.name + 'は しょうきんとして ' + this.opts.prize + '円を てにいれた！');
+      }
+      if (this.opts.defeatText) lines.push.apply(lines, [].concat(this.opts.defeatText));
+      this.say(lines, () => { this.result = 'win'; this.phase = 'end'; });
+      return;
+    }
+    this.result = 'win'; this.phase = 'end';
   };
 
   BattleState.prototype.processGrowth = function (ev, done) {
@@ -486,7 +525,7 @@
   };
 
   BattleState.prototype.onMeFaint = function () {
-    this.meVisible = false;
+    this.meFaintT = 14;
     this.say(this.me.name() + 'は たおれた！', () => {
       const alive = G.party.filter(m => m.hp > 0);
       if (alive.length === 0) {
@@ -540,7 +579,7 @@
         this.me = new Battler(target, false);
         this.activeIndex = this.subIndex;
         const fs = this.forceSwitch; this.forceSwitch = false;
-        this.meVisible = true;
+        this.meVisible = true; this.meFaintT = 0; this.slideT = 18;
         this.say('ゆけ！ ' + this.me.name() + '！', () => {
           if (fs) this.toMenuOrEnd(); else this.foeTurnThen(() => this.endTurn());
         });
@@ -628,14 +667,29 @@
 
     // 敵モンスター
     if (this.foeVisible) {
-      const sx = 150 + (this.shakeFoe > 0 ? (this.shakeFoe % 2 ? 2 : -2) : 0);
+      let sx = 150 + (this.shakeFoe > 0 ? (this.shakeFoe % 2 ? 2 : -2) : 0);
+      sx += Math.round(this.slideT * 4);          // 右からスライドイン
+      let sy = 18, alpha = 1;
+      if (this.foeFaintT > 0) { sy += (14 - this.foeFaintT) * 3; alpha = this.foeFaintT / 14; }
+      ctx.save(); ctx.globalAlpha = alpha;
       if (!(this.flash > 0 && this.flash % 2 === 0 && this.lastHit === 'foe'))
-        S.drawMonster(ctx, this.foe.mon.species, sx, 18, 52, false);
+        S.drawMonster(ctx, this.foe.mon.species, sx, sy, 52, false);
+      ctx.restore();
     }
     // 自分モンスター（背面）
     if (this.meVisible) {
-      const mx = 24 + (this.shakeMe > 0 ? (this.shakeMe % 2 ? 2 : -2) : 0);
-      S.drawMonster(ctx, this.me.mon.species, mx, 56, 60, true);
+      let mx = 24 + (this.shakeMe > 0 ? (this.shakeMe % 2 ? 2 : -2) : 0);
+      mx -= Math.round(this.slideT * 4);          // 左からスライドイン
+      let my = 56, alpha = 1;
+      if (this.meFaintT > 0) { my += (14 - this.meFaintT) * 3; alpha = this.meFaintT / 14; }
+      ctx.save(); ctx.globalAlpha = alpha;
+      if (!(this.flash > 0 && this.flash % 2 === 0 && this.lastHit === 'me'))
+        S.drawMonster(ctx, this.me.mon.species, mx, my, 60, true);
+      ctx.restore();
+    }
+    // 効果ばつぐん等の全画面フラッシュ
+    if (this.flashFull > 0 && this.flashFull % 2 === 1) {
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(0, 0, G.W, 112);
     }
 
     // HPボックス

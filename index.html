@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monster Emerald — オリジナルモンスターRPG</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="frame">
+    <div id="screen-wrap">
+      <canvas id="game" width="240" height="160"></canvas>
+      <div id="loading">よみこみちゅう…</div>
+    </div>
+    <div id="controls">
+      <div class="dpad">
+        <button class="btn" data-key="ArrowUp">▲</button>
+        <div class="dpad-mid">
+          <button class="btn" data-key="ArrowLeft">◀</button>
+          <button class="btn dpad-center" disabled>＋</button>
+          <button class="btn" data-key="ArrowRight">▶</button>
+        </div>
+        <button class="btn" data-key="ArrowDown">▼</button>
+      </div>
+      <div class="ab">
+        <button class="btn round" data-key="KeyX">B</button>
+        <button class="btn round" data-key="KeyZ">A</button>
+      </div>
+      <div class="se">
+        <button class="btn small" data-key="Enter">START</button>
+      </div>
+    </div>
+    <p class="hint">操作: 矢印キー = 移動 / Z = けってい(A) / X = キャンセル(B) / Enter = メニュー(START)</p>
+  </div>
+
+  <!-- 読み込み順序が重要（グローバル名前空間共有） -->
+  <script src="src/data.js"></script>
+  <script src="src/sprites.js"></script>
+  <script src="src/engine.js"></script>
+  <script src="src/maps.js"></script>
+  <script src="src/battle.js"></script>
+  <script src="src/overworld.js"></script>
+  <script src="src/menu.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>

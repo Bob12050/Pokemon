@@ -238,7 +238,8 @@
   };
 
   // ---------- トレーナーカード ----------
-  const ALL_BADGES = ['ストーンバッジ'];
+  const ALL_BADGES = ['ストーンバッジ', 'コロニーバッジ'];
+  const BADGE_COLORS = { 'ストーンバッジ': '#a0a8b0', 'コロニーバッジ': '#5fc04a' };
   function CardState() {}
   CardState.prototype.update = function () {
     const I = G.Input;
@@ -261,10 +262,10 @@
     for (let i = 0; i < ALL_BADGES.length; i++) {
       const bx = 60 + i * 26, by = 78;
       const got = G.hasBadge(ALL_BADGES[i]);
-      // バッジの石アイコン
-      ctx.fillStyle = got ? '#a0a8b0' : '#5a6068';
+      const col = BADGE_COLORS[ALL_BADGES[i]] || '#a0a8b0';
+      ctx.fillStyle = got ? col : '#5a6068';
       ctx.beginPath(); ctx.arc(bx + 9, by + 7, 8, 0, 7); ctx.fill();
-      ctx.fillStyle = got ? '#d0d8e0' : '#40464c'; ctx.beginPath(); ctx.arc(bx + 6, by + 4, 3, 0, 7); ctx.fill();
+      ctx.fillStyle = got ? '#ffffff' : '#40464c'; ctx.beginPath(); ctx.arc(bx + 6, by + 4, 3, 0, 7); ctx.fill();
       ctx.strokeStyle = '#203868'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(bx + 9, by + 7, 8, 0, 7); ctx.stroke();
     }
     const got = G.badges ? G.badges.length : 0;

@@ -11,7 +11,7 @@
     '.': { solid: false }, ',': { solid: false, enc: true }, ':': { solid: false },
     'F': { solid: false }, '=': { solid: false }, 'M': { solid: false },
     'T': { solid: true }, '#': { solid: true }, 'W': { solid: true, water: true },
-    'H': { solid: true }, 'R': { solid: true }, 'Y': { solid: true }, 'G': { solid: true }, 'D': { solid: false }, 'S': { solid: true },
+    'H': { solid: true }, 'R': { solid: true }, 'Y': { solid: true }, 'G': { solid: true }, 'N': { solid: true }, 'D': { solid: false }, 'S': { solid: true },
     'b': { solid: true }, 'C': { solid: true }, 'P': { solid: true }, '~': { solid: false, water: true },
     'B': { solid: true }, 'L': { solid: false, ledge: true }
   };
@@ -93,6 +93,12 @@
         ctx.fillStyle = '#606870'; ctx.fillRect(px, py + 5, TILE, 1); ctx.fillRect(px, py + 11, TILE, 1);
         ctx.fillStyle = '#a0a8b0'; ctx.fillRect(px, py, TILE, 2);
         ctx.fillStyle = '#505860'; ctx.fillRect(px + 4, py + 7, 2, 2); ctx.fillRect(px + 10, py + 2, 2, 2);
+        break;
+      case 'N':
+        ctx.fillStyle = '#3f9a3a'; ctx.fillRect(px, py, TILE, TILE);
+        ctx.fillStyle = '#2f7a2a'; ctx.fillRect(px, py + 5, TILE, 1); ctx.fillRect(px, py + 11, TILE, 1);
+        ctx.fillStyle = '#5fc04a'; ctx.fillRect(px, py, TILE, 2);
+        ctx.fillStyle = '#2a6020'; ctx.fillRect(px + 3, py + 7, 2, 2); ctx.fillRect(px + 11, py + 3, 2, 2);
         break;
       case 'S':
         fillTexture(ctx, px, py, '#6cbf4a', [], '');
@@ -298,7 +304,7 @@
     city: {
       name: 'ニジイロシティ', outdoor: true,
       grid: [
-        'TTTTTTTTTTTTTTTTT',
+        'TTTTTTTT..TTTTTTT',
         'T...............T',
         'T.RRRR.....YYYY.T',
         'T.RRRR.....YYYY.T',
@@ -321,6 +327,8 @@
         { x: 8, y: 10, to: 'gym', tx: 5, ty: 9, dir: 'up' }
       ],
       exits: [
+        { x: 8, y: 0, to: 'route2', tx: 8, ty: 16, dir: 'up' },
+        { x: 9, y: 0, to: 'route2', tx: 9, ty: 16, dir: 'up' },
         { x: 8, y: 15, to: 'route1', tx: 9, ty: 1, dir: 'down' },
         { x: 9, y: 15, to: 'route1', tx: 10, ty: 1, dir: 'down' }
       ],
@@ -433,6 +441,189 @@
       warps: [], exits: [{ x: 3, y: 6, to: 'city', tx: 4, ty: 10, dir: 'down' }, { x: 4, y: 6, to: 'city', tx: 4, ty: 10, dir: 'down' }],
       npcs: [
         { x: 2, y: 2, sprite: 'npc', dir: 'down', name: 'はかせのたまご', text: ['しんかは レベルアップで おきることが おおいよ。', 'タイプの あいしょうを おぼえると しょうぶが ゆうりに なる！'] }
+      ],
+      encounters: null
+    },
+
+    route2: {
+      name: '２ばんどうろ', outdoor: true,
+      grid: [
+        'TTTTTTTT..TTTTTTT',
+        'T...............T',
+        'T..,,,,,,,,,,,..T',
+        'T..,,,,,,,,,,,..T',
+        'T...............T',
+        'T..TT.....TT....T',
+        'T..TT.....TT....T',
+        'T...............T',
+        'T....,,,,,,,....T',
+        'T....,,,,,,,....T',
+        'T....,,,,,,,....T',
+        'T...............T',
+        'T..TT.....TT....T',
+        'T..TT.....TT....T',
+        'T...............T',
+        'T..,,,,,,,,,,,..T',
+        'T.S.,,,,,,,,,,,.T',
+        'TTTTTTTT::TTTTTTT'
+      ],
+      warps: [],
+      exits: [
+        { x: 8, y: 0, to: 'town2', tx: 8, ty: 12, dir: 'up' },
+        { x: 9, y: 0, to: 'town2', tx: 9, ty: 12, dir: 'up' },
+        { x: 8, y: 17, to: 'city', tx: 8, ty: 1, dir: 'down' },
+        { x: 9, y: 17, to: 'city', tx: 9, ty: 1, dir: 'down' }
+      ],
+      npcs: [
+        { x: 2, y: 16, sprite: 'sign', text: ['２ばんどうろ', 'きた：コモレビタウン'] },
+        {
+          x: 11, y: 7, sprite: 'youngster', dir: 'left', trainer: true, sight: 4, prize: 130, flag: 't_route2_a',
+          name: 'むしとり ヒロ',
+          intro: ['むしとり ヒロ', 'いい むしモンスター つかまえたんだ！ しょうぶ！'],
+          defeat: ['まだまだ あみを ふるって くるよ！'],
+          party: [{ species: 'buzzle', level: 9 }, { species: 'stingwing', level: 11 }],
+          text: ['まだまだ あみを ふるって くるよ！']
+        },
+        {
+          x: 5, y: 11, sprite: 'lass', dir: 'right', trainer: true, sight: 4, prize: 150, flag: 't_route2_b',
+          name: 'たんけんか ナミ',
+          intro: ['たんけんか ナミ', 'この さきの ジムは てごわいわよ。 ためしに しょうぶ！'],
+          defeat: ['やるじゃない！ きをつけて いってらっしゃい。'],
+          party: [{ species: 'skywist', level: 12 }],
+          text: ['やるじゃない！ きをつけて いってらっしゃい。']
+        }
+      ],
+      encounters: { rate: 20, table: [
+        { species: 'nibblet', min: 7, max: 10, weight: 20 },
+        { species: 'chompad', min: 9, max: 11, weight: 8 },
+        { species: 'flittle', min: 7, max: 10, weight: 18 },
+        { species: 'skywist', min: 9, max: 12, weight: 8 },
+        { species: 'buzzle', min: 7, max: 9, weight: 14 },
+        { species: 'stingwing', min: 9, max: 12, weight: 10 },
+        { species: 'sparkit', min: 8, max: 11, weight: 10 },
+        { species: 'gloomoth', min: 9, max: 12, weight: 8 },
+        { species: 'sproutle', min: 8, max: 11, weight: 3 },
+        { species: 'dratlet', min: 8, max: 11, weight: 3 }
+      ] }
+    },
+
+    town2: {
+      name: 'コモレビタウン', outdoor: true,
+      grid: [
+        'TTTTTTTTTTTTTTTTT',
+        'T...............T',
+        'T.RRRR...NNNNN..T',
+        'T.RRRR...NNNNN..T',
+        'T.BDHB...NNNNN..T',
+        'T........BHDHB..T',
+        'T...............T',
+        'T...............T',
+        'T.RRRR..........T',
+        'T.RRRR..........T',
+        'T.BDHB..........T',
+        'T......F...F....T',
+        'T..S............T',
+        'TTTTTTTT::TTTTTTT'
+      ],
+      warps: [
+        { x: 3, y: 4, to: 'center2', tx: 4, ty: 5, dir: 'up' },
+        { x: 11, y: 5, to: 'gym2', tx: 5, ty: 9, dir: 'up' },
+        { x: 3, y: 10, to: 'house2', tx: 3, ty: 5, dir: 'up' }
+      ],
+      exits: [
+        { x: 8, y: 13, to: 'route2', tx: 8, ty: 1, dir: 'down' },
+        { x: 9, y: 13, to: 'route2', tx: 9, ty: 1, dir: 'down' }
+      ],
+      npcs: [
+        { x: 3, y: 12, sprite: 'sign', text: ['コモレビタウン', '"こもれびが やさしい もりの まち"'] },
+        { x: 13, y: 7, sprite: 'npc', dir: 'down', name: 'まちのひと', text: ['みどりの やねは コモレビジム。', 'むしタイプの つかいて モリオさんが まってるよ！'] },
+        { x: 7, y: 6, sprite: 'npc', dir: 'down', name: 'おばあさん', text: ['むしタイプは ほのおが にがて。', 'でも くさや エスパーには つよいんじゃ。'] }
+      ],
+      encounters: null
+    },
+
+    center2: {
+      name: 'モンスターセンター', outdoor: false,
+      grid: [
+        'HHHHHHHHH',
+        'H=CCCCC=H',
+        'H=======H',
+        'H=======H',
+        'H=b===b=H',
+        'H=======H',
+        'H===MM==H',
+        'HHHHHHHHH'
+      ],
+      warps: [], exits: [{ x: 4, y: 6, to: 'town2', tx: 3, ty: 5, dir: 'down' }, { x: 5, y: 6, to: 'town2', tx: 3, ty: 5, dir: 'down' }],
+      npcs: [
+        { x: 4, y: 2, sprite: 'nurse', dir: 'down', name: 'ジョーイ', heal: true, text: ['コモレビタウンの センターへ ようこそ！', 'モンスターを かいふくしますね。'] }
+      ],
+      encounters: null
+    },
+
+    house2: {
+      name: 'コモレビタウンの いえ', outdoor: false,
+      grid: [
+        'HHHHHHHH',
+        'H======H',
+        'H=b==b=H',
+        'H======H',
+        'H==CC==H',
+        'H======H',
+        'H==MM==H',
+        'HHHHHHHH'
+      ],
+      warps: [], exits: [{ x: 3, y: 6, to: 'town2', tx: 3, ty: 11, dir: 'down' }, { x: 4, y: 6, to: 'town2', tx: 3, ty: 11, dir: 'down' }],
+      npcs: [
+        { x: 5, y: 2, sprite: 'npc', dir: 'down', name: 'もの しり', text: ['じょうたい いじょうは センターか どうぐで なおせる。', 'どくや やけどは ターンごとに ＨＰが へるから ちゅうい！'] }
+      ],
+      encounters: null
+    },
+
+    gym2: {
+      name: 'コモレビジム', outdoor: false,
+      grid: [
+        'HHHHHHHHHHH',
+        'H=========H',
+        'H=========H',
+        'H=========H',
+        'H==b===b==H',
+        'H=========H',
+        'H=========H',
+        'H==b===b==H',
+        'H=========H',
+        'H=========H',
+        'H====MM===H',
+        'HHHHHHHHHHH'
+      ],
+      warps: [], exits: [{ x: 5, y: 10, to: 'town2', tx: 11, ty: 6, dir: 'down' }, { x: 6, y: 10, to: 'town2', tx: 11, ty: 6, dir: 'down' }],
+      npcs: [
+        {
+          x: 3, y: 8, sprite: 'youngster', dir: 'right', trainer: true, sight: 3, prize: 140, flag: 't_gym2_a',
+          name: 'ジムトレーナー アゲハ',
+          intro: ['ジムトレーナー アゲハ', 'むしの すばやさ あなどるな！'],
+          defeat: ['はやさだけじゃ だめか…！'],
+          party: [{ species: 'stingwing', level: 13 }],
+          text: ['はやさだけじゃ だめか…！']
+        },
+        {
+          x: 7, y: 5, sprite: 'youngster', dir: 'left', trainer: true, sight: 3, prize: 150, flag: 't_gym2_b',
+          name: 'ジムトレーナー ミノル',
+          intro: ['ジムトレーナー ミノル', 'どくと むしの コンビネーション！'],
+          defeat: ['くっ、よまれていたか…'],
+          party: [{ species: 'gloomoth', level: 14 }],
+          text: ['くっ、よまれていたか…']
+        },
+        {
+          x: 5, y: 2, sprite: 'leader', dir: 'down', trainer: true, noSight: true, prize: 2500, flag: 't_gym2_leader',
+          name: 'ジムリーダー モリオ',
+          badge: 'コロニーバッジ', reward: 'hyperpotion',
+          intro: ['ジムリーダー モリオ', 'もりの むしたちは つよいぞ！', 'わたしの むしタイプ、こころして かかれ！'],
+          defeat: ['すばらしい！ きみには コロニーバッジが ふさわしい。'],
+          party: [{ species: 'buzzle', level: 14 }, { species: 'stingwing', level: 16 }, { species: 'gloomoth', level: 18 }],
+          text: ['もりは いつでも きみを むかえるぞ。']
+        },
+        { x: 8, y: 9, sprite: 'sign', text: ['コモレビジム', 'リーダー モリオ', '"もりと ともに いきる"'] }
       ],
       encounters: null
     }

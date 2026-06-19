@@ -31,6 +31,14 @@
   };
   TitleState.prototype.render = function () {
     const ctx = G.ctx;
+    // タイトル画像があれば全画面で使用
+    const A = global.Assets, ti = A && A.get('title');
+    if (ti) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(ti, 0, 0, G.W, G.H);
+      this.renderMenu();
+      return;
+    }
     const grad = ctx.createLinearGradient(0, 0, 0, G.H);
     grad.addColorStop(0, '#063'); grad.addColorStop(0.5, '#0a8060'); grad.addColorStop(1, '#063');
     ctx.fillStyle = grad; ctx.fillRect(0, 0, G.W, G.H);
@@ -51,7 +59,10 @@
     S.drawMonster(ctx, 'sproutle', 40, 78, 36, false);
     S.drawMonster(ctx, 'embit', 100, 78, 36, false);
     S.drawMonster(ctx, 'dribblet', 160, 78, 36, false);
-    // メニュー
+    this.renderMenu();
+  };
+  TitleState.prototype.renderMenu = function () {
+    const ctx = G.ctx;
     const w = 110, x = (G.W - w) / 2, y = 120, h = this.options.length * 14 + 8;
     G.window9(x, y, w, h, { fill: '#f8f8f8', border: '#284878', inner: '#88c8a8' });
     for (let i = 0; i < this.options.length; i++) {

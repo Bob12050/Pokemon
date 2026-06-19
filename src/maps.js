@@ -16,6 +16,13 @@
     'B': { solid: true }, 'L': { solid: false, ledge: true }
   };
 
+  // 画像タイルセット用のマッピング（8列×3行・各16x16）
+  const TILEMAP = {
+    '.': [0, 0], ',': [1, 0], ':': [2, 0], 'F': [3, 0], 'T': [4, 0], 'W': [5, 0], '#': [6, 0], 'L': [7, 0],
+    'H': [0, 1], 'B': [1, 1], 'R': [2, 1], 'Y': [3, 1], 'G': [4, 1], 'N': [5, 1], 'D': [6, 1], 'S': [7, 1],
+    '=': [0, 2], 'M': [1, 2], 'b': [2, 2], 'C': [3, 2], 'P': [4, 2], '~': [5, 0]
+  };
+
   function solidAt(map, x, y) {
     if (x < 0 || y < 0 || x >= map.w || y >= map.h) return true;
     const ch = map.grid[y][x] || 'T';
@@ -35,6 +42,14 @@
   }
 
   function drawTile(ctx, ch, px, py, frame) {
+    // 画像タイルセットがあれば優先（無ければ手続き描画にフォールバック）
+    const A = global.Assets, TS = A && A.get('tileset');
+    if (TS && TILEMAP[ch]) {
+      const c = TILEMAP[ch][0], r = TILEMAP[ch][1];
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(TS, c * 16, r * 16, 16, 16, px, py, TILE, TILE);
+      return;
+    }
     switch (ch) {
       case '.': case 'D':
         fillTexture(ctx, px, py, '#6cbf4a', [[3, 4], [9, 7], [12, 12], [5, 11]], '#5aad3c');
@@ -646,5 +661,5 @@
   function dims(map) { map.h = map.grid.length; map.w = map.grid[0].length; return map; }
   for (const k in MAPS) dims(MAPS[k]);
 
-  global.GameMaps = { MAPS, TILE, PROPS, drawTile, solidAt, tileAt, isExitTile, warpAt, npcAt };
+  global.GameMaps = { MAPS, TILE, PROPS, TILEMAP, drawTile, solidAt, tileAt, isExitTile, warpAt, npcAt };
 })(window);

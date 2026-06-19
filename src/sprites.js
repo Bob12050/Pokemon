@@ -200,8 +200,14 @@
   }
 
   function drawMonster(ctx, speciesId, dx, dy, size, back) {
-    const cv = getMonsterCanvas(speciesId, back);
     ctx.imageSmoothingEnabled = false;
+    // 画像があれば優先
+    const A = global.Assets;
+    if (A) {
+      const img = A.get('mon:' + speciesId + ':' + (back ? 'back' : 'front'));
+      if (img) { ctx.drawImage(img, dx, dy, size, size); return; }
+    }
+    const cv = getMonsterCanvas(speciesId, back);
     ctx.drawImage(cv, dx, dy, size, size);
   }
 
@@ -290,7 +296,22 @@
     return cv;
   }
   const trainerCache = {};
+  // 歩行シート（3フレーム×4方向[下上左右]・各16x16）対応
+  function drawPlayerSheet(ctx, sheet, dir, frame, dx, dy, size) {
+    const cols = 3, rows = 4;
+    const cw = sheet.width / cols, chh = sheet.height / rows;
+    const rowIdx = { down: 0, up: 1, left: 2, right: 3 }[dir] != null ? { down: 0, up: 1, left: 2, right: 3 }[dir] : 0;
+    const col = Math.max(0, Math.min(cols - 1, frame));
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sheet, col * cw, rowIdx * chh, cw, chh, dx, dy, size, size * chh / cw);
+  }
+
   function drawPlayer(ctx, dir, frame, dx, dy, size) {
+    const A = global.Assets;
+    if (A) {
+      const sheet = A.get('player_ow');
+      if (sheet) { drawPlayerSheet(ctx, sheet, dir, frame, dx, dy, size); return; }
+    }
     let d = dir, flip = false;
     if (dir === 'left') { d = 'side'; flip = true; }
     else if (dir === 'right') d = 'side';

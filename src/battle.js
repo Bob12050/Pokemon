@@ -656,14 +656,20 @@
   // ========================= 描画 =========================
   BattleState.prototype.render = function () {
     const ctx = G.ctx;
-    // 背景
-    const grad = ctx.createLinearGradient(0, 0, 0, 112);
-    grad.addColorStop(0, '#a8d8f0'); grad.addColorStop(1, '#e8f4d8');
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, G.W, 112);
-    ctx.fillStyle = '#cfe8b0'; ctx.fillRect(0, 96, G.W, 16);
-    // プラットフォーム
-    ctx.fillStyle = '#9fce6a'; ctx.beginPath(); ctx.ellipse(180, 70, 42, 12, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = '#7fb84a'; ctx.beginPath(); ctx.ellipse(48, 104, 50, 14, 0, 0, 7); ctx.fill();
+    // 背景（画像があれば優先）
+    const A = global.Assets, bg = A && A.get('battlebg');
+    if (bg) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(bg, 0, 0, G.W, 112);
+    } else {
+      const grad = ctx.createLinearGradient(0, 0, 0, 112);
+      grad.addColorStop(0, '#a8d8f0'); grad.addColorStop(1, '#e8f4d8');
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, G.W, 112);
+      ctx.fillStyle = '#cfe8b0'; ctx.fillRect(0, 96, G.W, 16);
+      // プラットフォーム
+      ctx.fillStyle = '#9fce6a'; ctx.beginPath(); ctx.ellipse(180, 70, 42, 12, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = '#7fb84a'; ctx.beginPath(); ctx.ellipse(48, 104, 50, 14, 0, 0, 7); ctx.fill();
+    }
 
     // 敵モンスター
     if (this.foeVisible) {

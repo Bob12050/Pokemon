@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Monster Emerald — オリジナルモンスターRPG</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <div id="frame">
@@ -34,17 +34,18 @@
   </div>
 
   <!-- 読み込み順序が重要（グローバル名前空間共有） -->
-  <script src="src/data.js"></script>
-  <script src="src/sprites.js"></script>
-  <script src="src/audio.js"></script>
-  <script src="src/engine.js"></script>
-  <script src="src/maps.js"></script>
+  <!-- ?v= はキャッシュ対策。コードを更新したら数字を上げる -->
+  <script src="src/data.js?v=3"></script>
+  <script src="src/sprites.js?v=3"></script>
+  <script src="src/audio.js?v=3"></script>
+  <script src="src/engine.js?v=3"></script>
+  <script src="src/maps.js?v=3"></script>
   <!-- 画像アセット（任意・無ければ手続き描画にフォールバック） -->
-  <script src="assets/manifest.js"></script>
-  <script src="src/assets.js"></script>
-  <script src="src/battle.js"></script>
-  <script src="src/overworld.js"></script>
-  <script src="src/menu.js"></script>
-  <script src="src/main.js"></script>
+  <script src="assets/manifest.js?v=3"></script>
+  <script src="src/assets.js?v=3"></script>
+  <script src="src/battle.js?v=3"></script>
+  <script src="src/overworld.js?v=3"></script>
+  <script src="src/menu.js?v=3"></script>
+  <script src="src/main.js?v=3"></script>
 </body>
 </html>

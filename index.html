@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Monster Emerald — オリジナルモンスターRPG</title>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
   <div id="frame">
@@ -13,21 +13,25 @@
       <div id="loading">よみこみちゅう…</div>
     </div>
     <div id="controls">
-      <div class="dpad">
-        <button class="btn" data-key="ArrowUp">▲</button>
-        <div class="dpad-mid">
-          <button class="btn" data-key="ArrowLeft">◀</button>
-          <button class="btn dpad-center" disabled>＋</button>
-          <button class="btn" data-key="ArrowRight">▶</button>
+      <div class="pad-row">
+        <div class="dpad">
+          <span></span>
+          <button class="btn dbtn" data-key="ArrowUp" aria-label="up">▲</button>
+          <span></span>
+          <button class="btn dbtn" data-key="ArrowLeft" aria-label="left">◀</button>
+          <span class="dcenter"></span>
+          <button class="btn dbtn" data-key="ArrowRight" aria-label="right">▶</button>
+          <span></span>
+          <button class="btn dbtn" data-key="ArrowDown" aria-label="down">▼</button>
+          <span></span>
         </div>
-        <button class="btn" data-key="ArrowDown">▼</button>
-      </div>
-      <div class="ab">
-        <button class="btn round" data-key="KeyX">B</button>
-        <button class="btn round" data-key="KeyZ">A</button>
+        <div class="ab">
+          <button class="btn round bbtn" data-key="KeyX">B</button>
+          <button class="btn round abtn" data-key="KeyZ">A</button>
+        </div>
       </div>
       <div class="se">
-        <button class="btn small" data-key="Enter">START</button>
+        <button class="btn pill" data-key="Enter">START</button>
       </div>
     </div>
     <p class="hint">操作: 矢印キー = 移動 / Z = けってい(A) / X = キャンセル(B) / Enter = メニュー(START)</p>
@@ -35,17 +39,17 @@
 
   <!-- 読み込み順序が重要（グローバル名前空間共有） -->
   <!-- ?v= はキャッシュ対策。コードを更新したら数字を上げる -->
-  <script src="src/data.js?v=3"></script>
-  <script src="src/sprites.js?v=3"></script>
-  <script src="src/audio.js?v=3"></script>
-  <script src="src/engine.js?v=3"></script>
-  <script src="src/maps.js?v=3"></script>
+  <script src="src/data.js?v=4"></script>
+  <script src="src/sprites.js?v=4"></script>
+  <script src="src/audio.js?v=4"></script>
+  <script src="src/engine.js?v=4"></script>
+  <script src="src/maps.js?v=4"></script>
   <!-- 画像アセット（任意・無ければ手続き描画にフォールバック） -->
-  <script src="assets/manifest.js?v=3"></script>
-  <script src="src/assets.js?v=3"></script>
-  <script src="src/battle.js?v=3"></script>
-  <script src="src/overworld.js?v=3"></script>
-  <script src="src/menu.js?v=3"></script>
-  <script src="src/main.js?v=3"></script>
+  <script src="assets/manifest.js?v=4"></script>
+  <script src="src/assets.js?v=4"></script>
+  <script src="src/battle.js?v=4"></script>
+  <script src="src/overworld.js?v=4"></script>
+  <script src="src/menu.js?v=4"></script>
+  <script src="src/main.js?v=4"></script>
 </body>
 </html>

@@ -20,10 +20,10 @@
     const list = [];
     for (const id in D.SPECIES) {
       const nm = D.SPECIES[id].name;
-      list.push({ key: 'mon:' + id + ':front', src: 'assets/monsters/' + id + '_front.png', w: 64, h: 64, desc: nm + '（正面・敵）' });
-      list.push({ key: 'mon:' + id + ':back', src: 'assets/monsters/' + id + '_back.png', w: 64, h: 64, desc: nm + '（背面・自分）' });
+      list.push({ key: 'mon:' + id + ':front', src: 'assets/monsters/' + id + '_front.png', w: 64, h: 64, keyBG: true, desc: nm + '（正面・敵）' });
+      list.push({ key: 'mon:' + id + ':back', src: 'assets/monsters/' + id + '_back.png', w: 64, h: 64, keyBG: true, desc: nm + '（背面・自分）' });
     }
-    list.push({ key: 'player_ow', src: 'assets/overworld/player.png', w: 48, h: 64, desc: '主人公 歩行 3フレーム×4方向(下上左右) 各16x16' });
+    list.push({ key: 'player_ow', src: 'assets/overworld/player.png', w: 48, h: 64, keyBG: true, desc: '主人公 歩行 3フレーム×4方向(下上左右) 各16x16' });
     list.push({ key: 'tileset', src: 'assets/overworld/tileset.png', w: 128, h: 48, desc: 'タイルセット 8列×3行 各16x16' });
     list.push({ key: 'title', src: 'assets/title.png', w: 240, h: 160, desc: 'タイトル画面 全画面' });
     list.push({ key: 'battlebg', src: 'assets/battle_bg.png', w: 240, h: 112, desc: 'バトル背景' });
@@ -35,12 +35,60 @@
   const images = {};
   let total = 0, loaded = 0;
 
+  // 自動制御フラグ（manifest.js で上書き可能）
+  const opt = global.ASSET_OPTIONS || {};
+  const AUTO_RESIZE = opt.autoResize !== false;   // 既定: 任意サイズ → 規定サイズへ自動縮小
+  const AUTO_KEY = opt.autoBgRemove !== false;    // 既定: 白などの背景を自動透過
+  const KEY_THRESHOLD = opt.bgThreshold || 60;    // 背景とみなす色距離
+
+  function newCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+
+  // 四隅の色を背景とみなして透過抜き（既に透過なら何もしない）
+  function removeBackground(ctx, w, h) {
+    const im = ctx.getImageData(0, 0, w, h), d = im.data;
+    const at = (x, y) => 4 * (y * w + x);
+    const cs = [at(0, 0), at(w - 1, 0), at(0, h - 1), at(w - 1, h - 1)];
+    // すでに透過している画像はスキップ
+    let aSum = 0; for (const c of cs) aSum += d[c + 3];
+    if (aSum / cs.length < 12) return;
+    let r = 0, g = 0, b = 0; for (const c of cs) { r += d[c]; g += d[c + 1]; b += d[c + 2]; }
+    r /= 4; g /= 4; b /= 4;
+    // 四隅がバラバラ（＝背景が一様でない）なら抜かない
+    let maxd = 0;
+    for (const c of cs) { const dd = Math.hypot(d[c] - r, d[c + 1] - g, d[c + 2] - b); if (dd > maxd) maxd = dd; }
+    if (maxd > 40) return;
+    const th = KEY_THRESHOLD, feather = 28;
+    for (let i = 0; i < d.length; i += 4) {
+      const dist = Math.hypot(d[i] - r, d[i + 1] - g, d[i + 2] - b);
+      if (dist < th) d[i + 3] = 0;
+      else if (dist < th + feather) d[i + 3] = Math.min(d[i + 3], Math.round(255 * (dist - th) / feather));
+    }
+    ctx.putImageData(im, 0, 0);
+  }
+
+  // 読み込んだ画像を規定サイズへ整え、必要なら背景透過してキャンバス化
+  function bake(img, entry) {
+    const nw = img.naturalWidth || entry.w, nh = img.naturalHeight || entry.h;
+    let w = nw, h = nh;
+    if (AUTO_RESIZE && entry.w && entry.h && (nw !== entry.w || nh !== entry.h)) { w = entry.w; h = entry.h; }
+    const c = newCanvas(w, h), ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, w, h);
+    if (AUTO_KEY && entry.keyBG) {
+      try { removeBackground(ctx, w, h); } catch (e) { /* file://でtaintされた場合などはスキップ */ }
+    }
+    return c;
+  }
+
   function load(entry) {
     if (images[entry.key]) return;
     const img = new Image();
-    const rec = { img: img, loaded: false };
+    const rec = { img: img, canvas: null, loaded: false, entry: entry };
     images[entry.key] = rec; total++;
-    img.onload = function () { rec.loaded = true; loaded++; };
+    img.onload = function () {
+      try { rec.canvas = bake(img, entry); } catch (e) { rec.canvas = null; }
+      rec.loaded = true; loaded++;
+    };
     img.onerror = function () { /* 無ければフォールバック（静かに無視） */ };
     img.src = entry.src;
   }
@@ -61,10 +109,10 @@
     }
   }
 
-  function get(key) { const r = images[key]; return (r && r.loaded) ? r.img : null; }
+  function get(key) { const r = images[key]; return (r && r.loaded) ? (r.canvas || r.img) : null; }
   function has(key) { return !!get(key); }
 
-  global.Assets = { get: get, has: has, REGISTRY: REGISTRY, progress: function () { return { loaded: loaded, total: total }; }, reload: start };
+  global.Assets = { get: get, has: has, REGISTRY: REGISTRY, progress: function () { return { loaded: loaded, total: total }; }, reload: start, _bake: bake, _removeBackground: removeBackground };
   start();
 
   // ----------------- 開発用: 手続き描画を PNG 雛形として書き出す -----------------

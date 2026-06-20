@@ -199,6 +199,24 @@
     return cv;
   }
 
+  const derivedBackCache = {};
+  function getDerivedBack(speciesId, frontImg) {
+    if (derivedBackCache[speciesId]) return derivedBackCache[speciesId];
+    const w = frontImg.width || 64, h = frontImg.height || 64;
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const c = cv.getContext('2d');
+    c.imageSmoothingEnabled = false;
+    c.save(); c.translate(w, 0); c.scale(-1, 1);
+    c.drawImage(frontImg, 0, 0, w, h);
+    c.restore();
+    c.globalCompositeOperation = 'source-atop';
+    c.fillStyle = 'rgba(0,0,0,0.28)';
+    c.fillRect(0, 0, w, h);
+    c.globalCompositeOperation = 'source-over';
+    derivedBackCache[speciesId] = cv;
+    return cv;
+  }
+
   function drawMonster(ctx, speciesId, dx, dy, size, back) {
     ctx.imageSmoothingEnabled = false;
     // 画像があれば優先
@@ -206,6 +224,11 @@
     if (A) {
       const img = A.get('mon:' + speciesId + ':' + (back ? 'back' : 'front'));
       if (img) { ctx.drawImage(img, dx, dy, size, size); return; }
+      // 背面画像が無く正面画像がある場合は、正面を反転＋暗くして代用
+      if (back) {
+        const front = A.get('mon:' + speciesId + ':front');
+        if (front) { ctx.drawImage(getDerivedBack(speciesId, front), dx, dy, size, size); return; }
+      }
     }
     const cv = getMonsterCanvas(speciesId, back);
     ctx.drawImage(cv, dx, dy, size, size);

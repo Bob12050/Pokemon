@@ -33,5 +33,10 @@
  * ========================================================================= */
 
 // 既定は空（＝すべてコード描画）。画像を入れたら 'auto' に変えるのが手軽です。
-window.ASSET_MANIFEST = [];
+// くさタイプ御三家の正面画像を読み込み（背面は正面から自動生成）。
+window.ASSET_MANIFEST = [
+  'mon:sproutle:front',
+  'mon:leaflox:front',
+  'mon:florabeast:front'
+];
 // window.ASSET_MANIFEST = 'auto';

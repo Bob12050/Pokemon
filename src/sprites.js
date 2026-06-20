@@ -189,9 +189,9 @@
       }
     }
     if (back) {
-      // 背面は少し暗くしてシルエット感を出す
+      // 背面はうっすらだけ陰影をつける（暗くしすぎない）
       c.globalCompositeOperation = 'source-atop';
-      c.fillStyle = 'rgba(0,0,0,0.28)';
+      c.fillStyle = 'rgba(0,0,0,0.10)';
       c.fillRect(0, 0, w, h);
       c.globalCompositeOperation = 'source-over';
     }
@@ -206,13 +206,10 @@
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
     const c = cv.getContext('2d');
     c.imageSmoothingEnabled = false;
+    // 背面が無いので正面を左右反転して代用（明るさはそのまま）
     c.save(); c.translate(w, 0); c.scale(-1, 1);
     c.drawImage(frontImg, 0, 0, w, h);
     c.restore();
-    c.globalCompositeOperation = 'source-atop';
-    c.fillStyle = 'rgba(0,0,0,0.28)';
-    c.fillRect(0, 0, w, h);
-    c.globalCompositeOperation = 'source-over';
     derivedBackCache[speciesId] = cv;
     return cv;
   }
